@@ -1,4 +1,7 @@
-use starknet::ContractAddress;
+use starknet::{ContractAddress};
+// use alexandria_math::Storage::List;
+// use alexandria_storage::List;
+use alexandria_storage::list::{List, ListTrait};
 
 
 #[starknet::interface]
@@ -7,32 +10,32 @@ trait IYASMeme<TContractState> {
         ref self: TContractState,
         owner: ContractAddress,
         content: Array<felt252>,
-        title: Array<felt252>,
-        file_extension: Array<felt252>
+        title: felt252,
+        file_extension: felt252
     );
     fn read_content(self: @TContractState) -> Array<felt252>;
     fn read_owner(self: @TContractState) -> ContractAddress;
     fn gift(ref self: TContractState, new_owner: ContractAddress);
-    fn read_title(self: @TContractState) -> Array<felt252>;
-    fn write_title(ref self: TContractState, new_title: Array<felt252>);
-    fn read_caption(self: @TContractState) -> Array<felt252>;
-    fn write_caption(ref self: TContractState, new_caption: Array<felt252>);
-    fn read_file_extension(self: @TContractState) -> Array<felt252>;
+    fn read_title(self: @TContractState) -> felt252;
+    fn read_caption(self: @TContractState) -> felt252;
+    fn write_caption(ref self: TContractState, new_caption: felt252);
+    fn read_file_extension(self: @TContractState) -> felt252;
 }
 
 #[starknet::contract]
 mod YASMeme {
     use super::IYASMeme;
     use starknet::{ContractAddress, get_caller_address};
+    use alexandria_storage::list::{List, ListTrait};
 
 
     #[storage]
     struct Storage {
-        title: Array<felt252>,
-        content: Array<felt252>,
+        title: felt252,
+        content: List<felt252>,
         owner: ContractAddress,
-        caption: Array<felt252>,
-        file_extension: Array<felt252> //.bmp, .png, etc
+        caption: felt252,
+        file_extension: felt252 //.bmp, .png, etc
     }
 
     #[constructor]
@@ -47,18 +50,19 @@ mod YASMeme {
             ref self: ContractState,
             owner: ContractAddress,
             content: Array<felt252>,
-            title: Array<felt252>,
-            file_extension: Array<felt252>
+            title: felt252,
+            file_extension: felt252
         ) {
             assert(get_caller_address() == self.owner.read(), 'You are not the owner');
-            self.content.write(content);
+            let mut contents = self.content.read();
+            contents.from_array(@content);
             self.title.write(title);
             self.owner.write(owner);
             self.file_extension.write(file_extension);
         }
 
         fn read_content(self: @ContractState) -> Array<felt252> {
-            self.content.read()
+            self.content.read().array()
         }
 
         fn read_owner(self: @ContractState) -> ContractAddress {
@@ -70,25 +74,20 @@ mod YASMeme {
             self.owner.write(new_owner);
         }
 
-        fn read_title(self: @ContractState) -> Array<felt252> {
+        fn read_title(self: @ContractState) -> felt252 {
             self.title.read()
         }
 
-        fn write_title(ref self: ContractState, new_title: Array<felt252>) {
-            assert(get_caller_address() == self.owner.read(), 'You are not the owner');
-            self.title.write(new_title);
-        }
-
-        fn read_caption(self: @ContractState) -> Array<felt252> {
+        fn read_caption(self: @ContractState) -> felt252 {
             self.caption.read()
         }
 
-        fn write_caption(ref self: ContractState, new_caption: Array<felt252>) {
+        fn write_caption(ref self: ContractState, new_caption: felt252) {
             assert(get_caller_address() == self.owner.read(), 'You are not the owner');
             self.caption.write(new_caption);
         }
 
-        fn read_file_extension(self: @ContractState) -> Array<felt252> {
+        fn read_file_extension(self: @ContractState) -> felt252 {
             self.file_extension.read()
         }
     }

@@ -1,5 +1,5 @@
 deps: install-dojo
-	curl --proto '=https' --tlsv1.2 -sSf https://docs.swmansion.com/scarb/install.sh | sh -s -- -v  0.7.0 \
+	curl --proto '=https' --tlsv1.2 -sSf https://docs.swmansion.com/scarb/install.sh | sh -s -- -v 2.3.0-rc1
 
 install-dojo:
 	@echo "Installing Dojo..."
