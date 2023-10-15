@@ -1,6 +1,4 @@
 use starknet::{ContractAddress};
-// use alexandria_math::Storage::List;
-// use alexandria_storage::List;
 use alexandria_storage::list::{List, ListTrait};
 
 
